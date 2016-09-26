@@ -1,0 +1,31 @@
+{
+  "name": "jacl-store",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "jsdoc": "jsdoc -c jsdoc.json -r"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EternalDeiwos/jacl-store.git"
+  },
+  "keywords": [
+    "ABAC",
+    "JACL"
+  ],
+  "author": "Greg Linklater",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EternalDeiwos/jacl-store/issues"
+  },
+  "homepage": "https://github.com/EternalDeiwos/jacl-store#readme",
+  "dependencies": {
+    "glob": "^7.1.0",
+    "json-document": "0.0.0"
+  },
+  "devDependencies": {
+    "lodash": "^4.16.2"
+  }
+}

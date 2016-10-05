@@ -136,37 +136,87 @@ class Store {
   /**
    * Constructor
    * 
-   * @param  {string} path - Path of the store directory relative to the cwd.
+   * @param  {string|array} path - Path(s) of the store directory.
    *
    * @example
    * let store = new Store('./StoreData')
+   *
+   * @example
+   * let store = new Store(['./StoreData1', './StoreData2'])
    */
   constructor (path) {
-    this.path = path
+    this.paths = []
+    this.files = []
     this.attributes = {}
-    this.glob()
+    this.build(path)
+  }
+
+  /**
+   * Build
+   *
+   * @description 
+   * Glob and assign individual directors to the attribute cache.
+   * 
+   * @param  {string|array} dirs - path(s) to store directories.
+   * @return {Store}
+   */
+  build (dirs) {
+    if (dirs) {
+      if (Array.isArray(dirs)) {
+        dirs.forEach(dir => {
+          let files = this.glob(dir)
+          files.forEach(filename => {
+            let file = require(filename)
+            this.assign(file)
+          })
+        })
+        this.paths = this.paths.concat(dirs)
+      } else {
+        let files = this.glob(dirs)
+        files.forEach(filename => {
+          let file = require(filename)
+          this.assign(file)
+        })
+        this.paths.push(dirs)
+      }
+    } else {
+      throw new Error('Invalid store directory')
+    }
+    
+    return this
   }
 
   /**
    * Glob
    *
    * @description
-   * Populates attributes from a flat-file given the store directory
-   * iteratively.
+   * Scans over a director for store data files.
+   *
+   * @param {string} dir - path to a store directory
+   * @return {array} an array of files containing store attributes
    */
-  glob () {
-    let pattern = path.join(cwd, this.path, '*.js')
-    let files = glob.sync(path.resolve(pattern))
-    this.files = files
+  glob (dir) {
+    let pattern
+    if (path.isAbsolute(dir)) {
+      pattern = path.join(dir, '*.js')
+    } else {
+      pattern = path.join(cwd, dir, '*.js')
+    }
 
-    files.forEach(filename => {
-      let file = require(filename)
-      this.assign(file)
-    })
+    let files = glob.sync(path.resolve(pattern))
+    this.files = this.files.concat(files)
+    return files
   }
 
+  /**
+   * Assign
+   * 
+   * @param  {object} source - merge in the attributes from the source object.
+   * @return {Store}
+   */
   assign (source) {
     this.attributes = extender(this.attributes, source)
+    return this
   }
 
   /**

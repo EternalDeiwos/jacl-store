@@ -223,20 +223,36 @@ class Store {
    * @description
    * Fetches an attribute given a JSON Pointer request.
    * 
-   * @param  {string} expr - A JSON Pointer string denoting the path of the
-   * attribute that needs to be fetched.
+   * @param  {string|array} expr - A JSON Pointer string denoting the path of
+   * the attribute that needs to be fetched.
    * @return {Object} The requested attribute or null if not present.
    */
-  getAttribute (expr) {
-    let attribute
-    try {
-      let pointer = JSONPointer.parse(expr)
-      attribute = pointer.get(this.attributes)
-    } catch (e) {
-      return null
-    }
+  getAttribute (exprs) {
+    if (exprs) {
+      let attribute
 
-    return evaluateGenerators(attribute)
+      if (Array.isArray(exprs)) {
+        exprs.forEach(expr => {
+          try {
+            let pointer = JSONPointer.parse(expr)
+            attribute = extender(attribute || {}, pointer.get(this.attributes))
+          } catch (e) {
+            return null
+          }
+        })
+
+      } else {
+        try {
+          let pointer = JSONPointer.parse(exprs)
+          attribute = pointer.get(this.attributes)
+        } catch (e) {
+          return null
+        }
+      }
+
+      return evaluateGenerators(attribute)
+    }
+    return null
   }
 }
 

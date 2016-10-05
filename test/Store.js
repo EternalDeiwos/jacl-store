@@ -105,7 +105,6 @@ describe('Store', () => {
 
     it('should ignore parameters for attributes defined in terms of a function', () => {
       expect(store.getAttribute('/object/fail')).to.be.null
-      expect(store.getAttribute('').object.fail).to.be.null
     })
 
     it('should return null for invalid JSON Pointer strings', () => {

@@ -158,6 +158,10 @@ class Store {
    * Glob and assign individual directors to the attribute cache.
    * 
    * @param  {string|array} dirs - path(s) to store directories.
+   *
+   * @example
+   * let store = new Store().build('./StoreData1').build('./StoreData2')
+   * 
    * @return {Store}
    */
   build (dirs) {
@@ -179,8 +183,6 @@ class Store {
         })
         this.paths.push(dirs)
       }
-    } else {
-      throw new Error('Invalid store directory')
     }
     
     return this

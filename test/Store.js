@@ -55,7 +55,8 @@ describe('Store', () => {
       department: 'Computer Science'
     },
     object: {
-      id: 'some-id'
+      id: 'some-id',
+      fail: null
     },
     environment: {
       time: {
@@ -99,6 +100,11 @@ describe('Store', () => {
       expect(_.isEqual(store.getAttribute('/environment'), asserted_attributes.environment)).to.be.true
     })
 
+    it('should fetch attributes given an array of JSON Pointer strings', () => {
+      expect(_.isEqual(store.getAttribute(['/subject', '/environment', '/object']), asserted_attributes)).to.be.true
+      expect(_.isEqual(store.getAttribute(['/subject/staff', '/subject/department']), { subject: asserted_attributes.subject })).to.be.true
+    })
+
     it('should evaluate attributes defined in terms of a function', () => {
       expect(_.isEqual(store.getAttribute('/object/id'), asserted_attributes.object.id)).to.be.true
     })
@@ -113,6 +119,12 @@ describe('Store', () => {
 
     it('should return null if requested attribute is not present', () => {
       expect(store.getAttribute('/subject/name')).to.be.null
+    })
+
+    describe('alias (get)', () => {
+      it('should do the same thing as getAttribute', () => {
+        expect(_.isEqual(store.getAttribute('/object/id'), asserted_attributes.object.id)).to.be.true  
+      })
     })
   })
 

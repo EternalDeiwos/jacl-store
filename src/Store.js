@@ -222,6 +222,8 @@ class Store {
   }
 
   /**
+   * Get Attribute
+   * 
    * @description
    * Fetches an attribute given a JSON Pointer request.
    * 
@@ -231,13 +233,14 @@ class Store {
    */
   getAttribute (exprs) {
     if (exprs) {
-      let attribute
+      let attribute = {}
 
       if (Array.isArray(exprs)) {
         exprs.forEach(expr => {
           try {
             let pointer = JSONPointer.parse(expr)
-            attribute = extender(attribute || {}, pointer.get(this.attributes))
+            let value = pointer.get(this.attributes)
+            pointer.replace(attribute, value)
           } catch (e) {
             return null
           }
@@ -251,10 +254,21 @@ class Store {
           return null
         }
       }
+      // console.log(attribute)
 
       return evaluateGenerators(attribute)
     }
     return null
+  }
+
+  /**
+   * Get
+   *
+   * @description 
+   * Alias for getAttribute
+   */
+  get (exprs) {
+    return this.getAttribute(exprs)
   }
 }
 

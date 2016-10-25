@@ -6,6 +6,8 @@
 const cwd = process.cwd()
 const path = require('path')
 const chai = require('chai')
+const sinon = require('sinon')
+const sinonChai = require('sinon-chai')
 const _ = require('lodash')
 
 /**
@@ -13,11 +15,13 @@ const _ = require('lodash')
  */
 chai.should()
 let expect = chai.expect
+chai.use(sinonChai)
 
 /**
  * Constants
  */
 const STORE_DATA_DIR = 'test/StoreData'
+const CONFIG_DATA_DIR = 'test/ConfigStoreData'
 
 /**
  * Code under test
@@ -28,46 +32,15 @@ const Store = require('../src/Store')
  *
  */
 describe('Store', () => {
-  let asserted_files = [
-    'data1.js',
-    'data2.js',
-    'data3.js',
-    'data4.js'
-  ]
-
-  let asserted_attributes_preeval = {
-    subject: {
-      staff: true,
-      department: 'Computer Science'
-    },
-    environment: {
-      time: {
-        hours: 11,
-        minutes: 12,
-        seconds: 14
-      }
-    }
-  }
-
-  let asserted_attributes = {
-    subject: {
-      staff: true,
-      department: 'Computer Science'
-    },
-    object: {
-      id: 'some-id',
-      fail: null
-    },
-    environment: {
-      time: {
-        hours: 11,
-        minutes: 12,
-        seconds: 14
-      }
-    }
-  }
 
   describe('data directory', () => {
+    let asserted_files = [
+      'data1.js',
+      'data2.js',
+      'data3.js',
+      'data4.js',
+      'data5.js'
+    ]
 
     let store
     beforeEach(() => {
@@ -89,6 +62,37 @@ describe('Store', () => {
 
   })
   describe('getAttribute', () => {
+    let asserted_attributes_preeval = {
+      subject: {
+        staff: true,
+        department: 'Computer Science'
+      },
+      environment: {
+        time: {
+          hours: 11,
+          minutes: 12,
+          seconds: 14
+        }
+      }
+    }
+
+    let asserted_attributes = {
+      subject: {
+        staff: true,
+        department: 'Computer Science'
+      },
+      object: {
+        id: 'some-id',
+        fail: null
+      },
+      environment: {
+        time: {
+          hours: 11,
+          minutes: 12,
+          seconds: 14
+        }
+      }
+    }
 
     let store
     beforeEach(() => {
@@ -125,6 +129,64 @@ describe('Store', () => {
       it('should do the same thing as getAttribute', () => {
         expect(_.isEqual(store.getAttribute('/object/id'), asserted_attributes.object.id)).to.be.true  
       })
+    })
+  })
+
+  describe('config', () => {
+    const DEFAULT_CONFIG = require('./ConfigStoreData/config1').config
+    const SECOND_CONFIG = require('./ConfigStoreData/config2').config2.specialConfig
+
+    let store
+    beforeEach(() => {
+      store = new Store(CONFIG_DATA_DIR)
+    })
+    
+    describe('without specifying a JSON Pointer to the config', () => {
+      it('should fetch the default config', () => {
+        store.config().should.deep.equal(DEFAULT_CONFIG)
+      })
+    })
+
+    describe('specifying a JSON Pointer to the config', () => {
+      it('should fetch the specified config', () => {
+        store.config('/config2/specialConfig').should.deep.equal(SECOND_CONFIG)
+      })
+    })
+
+    describe('specifying a JSON Pointer to an invalid config', () => {
+      it ('should return null', () => {
+        expect(store.config('/config3/invalidPointer')).to.be.null
+      })
+    })
+
+  })
+
+  describe('rule', () => {
+    const MYRULE = require('./StoreData/data5').rules.myrule
+
+    let store
+    beforeEach(() => {
+      store = new Store(STORE_DATA_DIR)
+      sinon.spy(store, 'get')
+    })
+
+    afterEach(() => {
+      store.get.restore()
+    })
+
+    it('should throw if no rule name is supplied', () => {
+      expect(store.rule).to.throw('Rule name required')
+      store.get.should.not.have.been.called
+    })
+
+    it('should return null if the rule does not exist', () => {
+      expect(store.rule('nonexistentrule')).to.be.null
+      store.get.should.have.been.called
+    })
+
+    it('should return the rule object descriptor if it exists', () => {
+      store.rule('myrule').should.equal(MYRULE)
+      store.get.should.have.been.called
     })
   })
 

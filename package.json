@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "coverage": "NODE_TLS_REJECT_UNAUTHORIZED=0 istanbul cover _mocha -- test",
     "test": "mocha",
     "jsdoc": "jsdoc -c jsdoc.json -r"
   },

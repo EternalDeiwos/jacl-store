@@ -270,6 +270,41 @@ class Store {
   get (exprs) {
     return this.getAttribute(exprs)
   }
+
+  /**
+   * Config
+   * 
+   * @description
+   * Get barrier configuration from store
+   * 
+   * @param  {string} [exprs] - JSON Pointer string for config
+   * @return {object} Config descriptor object
+   */
+  config (exprs='/config') {
+    return this.get(exprs)
+  }
+
+  /**
+   * Rule
+   * 
+   * @description
+   * Get rule by name from the store
+   *
+   * @throws {Error} If [name is undefined]
+   * @param  {string} name - Name of rule
+   * @return {object|null} Rule descriptor object or null of rule doesn't exist.
+   */
+  rule (name) {
+    if (name && typeof name === 'string') {
+      let rule = this.get(`/rules/${name}`)
+      if (rule) {
+        return rule
+      }
+      return null
+    } else {
+      throw new Error('Rule name required')
+    }
+  }
 }
 
 /**

@@ -126,8 +126,30 @@ describe('Store', () => {
     })
 
     describe('alias (get)', () => {
-      it('should do the same thing as getAttribute', () => {
-        expect(_.isEqual(store.getAttribute('/object/id'), asserted_attributes.object.id)).to.be.true  
+      it('should fetch attributes given a JSON Pointer string', () => {
+        expect(_.isEqual(store.get('/subject'), asserted_attributes.subject)).to.be.true
+        expect(_.isEqual(store.get('/environment'), asserted_attributes.environment)).to.be.true
+      })
+
+      it('should fetch attributes given an array of JSON Pointer strings', () => {
+        expect(_.isEqual(store.get(['/subject', '/environment', '/object']), asserted_attributes)).to.be.true
+        expect(_.isEqual(store.get(['/subject/staff', '/subject/department']), { subject: asserted_attributes.subject })).to.be.true
+      })
+
+      it('should evaluate attributes defined in terms of a function', () => {
+        expect(_.isEqual(store.get('/object/id'), asserted_attributes.object.id)).to.be.true
+      })
+
+      it('should ignore parameters for attributes defined in terms of a function', () => {
+        expect(store.get('/object/fail')).to.be.null
+      })
+
+      it('should return null for invalid JSON Pointer strings', () => {
+        expect(store.get('/')).to.be.null
+      })
+
+      it('should return null if requested attribute is not present', () => {
+        expect(store.get('/subject/name')).to.be.null
       })
     })
   })
